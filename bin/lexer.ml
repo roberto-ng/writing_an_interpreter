@@ -49,7 +49,25 @@ let read_identifier lexer =
   let initial_position = lexer.position in
   let rec loop lexer =
     let next_lexer = read_char lexer in
-    if is_alpha next_lexer.ch then 
+    if BatChar.is_letter next_lexer.ch then 
+      loop (read_char lexer)
+    else 
+      let literal =
+        lexer.input 
+        |> string_to_char_list
+        |> List.map BatString.of_char
+        |> List.filteri (fun i _ -> i >= initial_position && i <= lexer.position) 
+        |> String.concat ""
+      in
+      (lexer, literal)
+  in
+  loop lexer
+
+let read_number lexer =
+  let initial_position = lexer.position in
+  let rec loop lexer =
+    let next_lexer = read_char lexer in
+    if BatChar.is_digit next_lexer.ch then 
       loop (read_char lexer)
     else 
       let literal =
@@ -74,6 +92,9 @@ let next_token lexer =
   if BatChar.is_letter lexer.ch then
     let (lexer, literal) = read_identifier lexer in
     (lexer, Some (lookup_ident literal))
+  else if BatChar.is_digit lexer.ch then
+    let (lexer, literal) = read_number lexer in
+    (lexer, Some (Token.Int literal))
   else 
     match lexer.ch with
     | '=' -> (lexer, Some Token.Assign)
