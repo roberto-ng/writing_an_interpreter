@@ -1,5 +1,4 @@
 open Token
-open Utils
 
 let ( let* ) = Option.bind
 let ( let+ ) = Result.bind
@@ -48,16 +47,16 @@ let new_lexer input =
 let read_identifier lexer =
   let initial_position = lexer.position in
   let rec loop lexer =
+    let last_position = lexer.position + 1 in
     let next_lexer = read_char lexer in
+
+    (* Continue until next char isn't a letter *)
     if BatChar.is_letter next_lexer.ch then 
-      loop (read_char lexer)
+      loop next_lexer
     else 
       let literal =
         lexer.input 
-        |> string_to_char_list
-        |> List.map BatString.of_char
-        |> List.filteri (fun i _ -> i >= initial_position && i <= lexer.position) 
-        |> String.concat ""
+        |> BatString.slice ~first: initial_position ~last: last_position
       in
       (lexer, literal)
   in
@@ -66,16 +65,16 @@ let read_identifier lexer =
 let read_number lexer =
   let initial_position = lexer.position in
   let rec loop lexer =
+    let last_position = lexer.position + 1 in
     let next_lexer = read_char lexer in
+
+    (* Continue until next char isn't a digit *)
     if BatChar.is_digit next_lexer.ch then 
-      loop (read_char lexer)
+      loop next_lexer
     else 
       let literal =
         lexer.input 
-        |> string_to_char_list
-        |> List.map BatString.of_char
-        |> List.filteri (fun i _ -> i >= initial_position && i <= lexer.position) 
-        |> String.concat ""
+        |> BatString.slice ~first: initial_position ~last: last_position
       in
       (lexer, literal)
   in
