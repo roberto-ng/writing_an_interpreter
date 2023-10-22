@@ -9,6 +9,12 @@ type t =
   (* Operators *)
   | Assign
   | Plus
+  | Minus
+  | Bang
+  | Asterisk
+  | Slash
+  | LT (* < *)
+  | GT (* > *)
   (* Delimiters *)
   | Comma
   | Semicolon
@@ -32,6 +38,12 @@ let token_of_string str value =
     Some (Ident int_value)
   | "=" -> Some Assign
   | "+" -> Some Plus
+  | "-" -> Some Minus
+  | "!" -> Some Bang
+  | "*" -> Some Asterisk
+  | "/" -> Some Slash
+  | "<" -> Some LT
+  | ">" -> Some GT
   | "," -> Some Comma
   | ";" -> Some Semicolon
   | "(" -> Some LParen
@@ -50,6 +62,12 @@ let string_of_token token =
   | Int value -> "INT " ^ value
   | Assign -> "ASSIGN"
   | Plus -> "PLUS"
+  | Minus -> "MINUS"
+  | Bang -> "BANG"
+  | Asterisk -> "ASTERISK"
+  | Slash -> "SLASH"
+  | LT -> "LT"
+  | GT -> "GT"
   | Comma -> "COMMA"
   | Semicolon -> "SEMICOLON"
   | LParen -> "LPAREN"

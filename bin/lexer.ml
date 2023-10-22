@@ -102,6 +102,12 @@ let next_token lexer =
     | ')' -> (lexer, Some Token.RParen)
     | ',' -> (lexer, Some Comma)
     | '+' -> (lexer, Some Plus)
+    | '-' -> (lexer, Some Minus)
+    | '!' -> (lexer, Some Bang)
+    | '*' -> (lexer, Some Asterisk)
+    | '/' -> (lexer, Some Slash)
+    | '<' -> (lexer, Some LT)
+    | '>' -> (lexer, Some GT)
     | '{' -> (lexer, Some LBrace)
     | '}' -> (lexer, Some RBrace)
     |'\x00' -> (lexer, Some Eof)
@@ -133,12 +139,16 @@ let generate_tokens input_string =
 
 let test_next_token () =
   let input =
-    "let five = 5;" ^
-    "let ten = 10;" ^
-    "let add = fn(x, y) {" ^
-      "x + y;" ^
-    "};" ^
-    "let result = add(five, ten);"
+    "
+    let five = 5;
+    let ten = 10;
+    let add = fn(x, y) {
+      x + y;
+    };
+    let result = add(five, ten);
+    !-/*5;
+    5 < 10 > 5;
+    "
   in
 
   let tests = 
