@@ -90,28 +90,28 @@ let next_token lexer =
   let lexer = skip_whitespace lexer in
   if BatChar.is_letter lexer.ch then
     let (lexer, literal) = read_identifier lexer in
-    (lexer, Some (lookup_ident literal))
+    (lexer, lookup_ident literal)
   else if BatChar.is_digit lexer.ch then
     let (lexer, literal) = read_number lexer in
-    (lexer, Some (Token.Int literal))
+    (lexer, Token.Int literal)
   else 
     match lexer.ch with
-    | '=' -> (lexer, Some Token.Assign)
-    | ';' -> (lexer, Some Token.Semicolon)
-    | '(' -> (lexer, Some Token.LParen)
-    | ')' -> (lexer, Some Token.RParen)
-    | ',' -> (lexer, Some Comma)
-    | '+' -> (lexer, Some Plus)
-    | '-' -> (lexer, Some Minus)
-    | '!' -> (lexer, Some Bang)
-    | '*' -> (lexer, Some Asterisk)
-    | '/' -> (lexer, Some Slash)
-    | '<' -> (lexer, Some LT)
-    | '>' -> (lexer, Some GT)
-    | '{' -> (lexer, Some LBrace)
-    | '}' -> (lexer, Some RBrace)
-    |'\x00' -> (lexer, Some Eof)
-    | _ -> (lexer, Some Illegal)
+    | '=' -> (lexer, Token.Assign)
+    | ';' -> (lexer, Token.Semicolon)
+    | '(' -> (lexer, Token.LParen)
+    | ')' -> (lexer, Token.RParen)
+    | ',' -> (lexer, Comma)
+    | '+' -> (lexer, Plus)
+    | '-' -> (lexer, Minus)
+    | '!' -> (lexer, Bang)
+    | '*' -> (lexer, Asterisk)
+    | '/' -> (lexer, Slash)
+    | '<' -> (lexer, LT)
+    | '>' -> (lexer, GT)
+    | '{' -> (lexer, LBrace)
+    | '}' -> (lexer, RBrace)
+    |'\x00' -> (lexer, Eof)
+    | _ -> (lexer, Illegal)
   
 let advance lexer =
   let new_token = next_token lexer in
@@ -120,12 +120,10 @@ let advance lexer =
 
 let next_char lexer =
   let (lexer, token) = next_token lexer in
-  match token with
-  | None -> Error "Unmatched character"
-  | Some token ->
-    if token == Eof 
-    then Ok (lexer, token)
-    else Ok (read_char lexer, token)
+  if token == Eof then 
+    Ok (lexer, token)
+  else 
+    Ok (read_char lexer, token)
 
 let generate_tokens input_string =
   let lexer = new_lexer input_string in
