@@ -1,7 +1,19 @@
+let run_repl () =
+  let rec repl () =
+    let () = print_string "> " in
+    let line = read_line () in
+    let () = 
+      match Lexer.generate_tokens line with
+      | Error err -> Printf.eprintf "%s\n" err
+      | Ok tokens -> 
+        tokens 
+        |> List.map Token.string_of_token  
+        |> List.iter print_endline
+    in
+    repl ()
+  in
+
+  repl ()
+
 let () =
-  match Lexer.test_next_token () with
-  | Error err -> print_endline err
-  | Ok _is_success -> ()
-    (* if is_success
-    then print_endline "\nDeu certo!"
-    else print_endline "\nDeu ruim!"  *)
+  run_repl ()
