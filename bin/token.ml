@@ -76,8 +76,15 @@ let string_of_token token =
   | RBrace -> "RBRACE"
   | Function -> "FUNCTION"
   | Let -> "LET"
-
+  
 let print token =
   token 
   |> string_of_token 
   |> print_endline
+
+let get_literal token = 
+  (* let () = print token in *)
+  match token with
+  | Ident identifier -> Some identifier
+  | Int value -> Some value
+  | _ -> None

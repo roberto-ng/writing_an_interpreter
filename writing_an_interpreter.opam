@@ -12,6 +12,8 @@ bug-reports: "https://github.com/username/reponame/issues"
 depends: [
   "ocaml"
   "dune" {>= "3.2"}
+  "batteries" {= "3.7.1"}
+  "ppx_variants_conv" {= "v0.16.0"}
   "odoc" {with-doc}
 ]
 build: [

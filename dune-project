@@ -19,7 +19,11 @@
  (name writing_an_interpreter)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune)
+ (depends 
+  ocaml 
+  dune 
+  (batteries (= 3.7.1))
+  (ppx_variants_conv (= v0.16.0)))
  (tags
   (topics "to describe" your project)))
 

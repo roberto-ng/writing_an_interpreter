@@ -121,14 +121,14 @@ let advance lexer =
 let next_char lexer =
   let (lexer, token) = next_token lexer in
   if token == Eof then 
-    Ok (lexer, token)
+    (lexer, token)
   else 
-    Ok (read_char lexer, token)
+    (read_char lexer, token)
 
 let generate_tokens input_string =
   let lexer = new_lexer input_string in
   let rec iter lexer tokens =
-    let+ result = next_char lexer in 
+    let result = next_char lexer in 
     match result with
     | (_, Token.Eof) -> Ok (List.rev_append tokens [Token.Eof])
     | (new_lexer, token) -> iter new_lexer (token :: tokens)
