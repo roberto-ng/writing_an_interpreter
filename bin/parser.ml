@@ -68,23 +68,36 @@ let get_node_token_literal node =
   |> token_of_node
   |> Token.get_literal
 
-let expect_peek token parser =
-  if parser.peek_token = token then
+let expect_peek variant parser =
+  if parser.peek_token |> Token.is_variant variant then
+    (next_token parser, true)
+  else
+    (parser, false)
+
+let expect_current variant parser =
+  if parser.cur_token |> Token.is_variant variant then
     (next_token parser, true)
   else
     (parser, false)
       
 let parse_let_statement parser =
   let first_token = parser.cur_token in
-  match parser.peek_token with
-  | Token.Ident ident  ->
-    let parser = next_token parser in
-    let stmt = LetStatement (first_token, Identifier (Token.Ident ident)) in
-    if (parser.peek_token = Token.Assign) then
-      let parser = next_token parser in
+  let (parser, is_peek_token_ident) = 
+    parser |> expect_peek Token.Variants.ident
+  in
+
+  if is_peek_token_ident then
+    let stmt = LetStatement (first_token, Identifier (parser.cur_token)) in
+
+    let (parser, is_peek_token_assign) = 
+      parser |> expect_peek Token.Variants.assign
+    in
+    if is_peek_token_assign then
       let rec loop parser =
-        let parser = next_token parser in
-        if parser.cur_token = Token.Semicolon then
+        let (parser, is_cur_token_semicolon) =
+          parser |> expect_current Token.Variants.semicolon
+        in
+        if is_cur_token_semicolon then
           parser
         else
           loop parser 
@@ -92,7 +105,8 @@ let parse_let_statement parser =
       ((loop parser), Some stmt)
     else
       (parser, None)
-  | _ -> (parser, None)
+  else
+    (parser, None)
 
 let parse_statement parser =
   match parser.cur_token with

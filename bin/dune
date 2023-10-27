@@ -1,4 +1,7 @@
 (executable
  (public_name writing_an_interpreter)
  (name main)
- (libraries writing_an_interpreter batteries))
+ (libraries 
+  writing_an_interpreter 
+  batteries)
+ (preprocess (pps ppx_variants_conv)))

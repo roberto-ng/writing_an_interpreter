@@ -1,3 +1,5 @@
+open Variantslib
+
 let ( let* ) = Option.bind
 
 type t =
@@ -25,6 +27,7 @@ type t =
   (* Keywords *)
   | Function
   | Let
+  [@@deriving variants]
 
 let token_of_string str value = 
   match str with
@@ -88,3 +91,10 @@ let get_literal token =
   | Ident identifier -> Some identifier
   | Int value -> Some value
   | _ -> None
+
+ (* let mustbe tag x =
+  (* tag.Variants. *)
+  tag.Variants.rank = Variants.to_rank x *)
+
+let is_variant variant_tag token =
+  variant_tag.Variant.rank = Variants.to_rank token
