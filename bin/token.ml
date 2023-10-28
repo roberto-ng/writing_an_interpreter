@@ -27,6 +27,7 @@ type t =
   (* Keywords *)
   | Function
   | Let
+  | Return
   [@@deriving variants]
 
 let token_of_string str value = 
@@ -55,6 +56,7 @@ let token_of_string str value =
   | "}" -> Some RBrace
   | "FUNCTION" -> Some Function
   | "LET" -> Some Let
+  | "RETURN" -> Some Return
   | _ -> None
 
 let string_of_token token =
@@ -79,6 +81,7 @@ let string_of_token token =
   | RBrace -> "RBRACE"
   | Function -> "FUNCTION"
   | Let -> "LET"
+  | Return -> "RETURN"
   
 let print token =
   token 

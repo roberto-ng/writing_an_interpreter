@@ -10,6 +10,7 @@ type expression =
 
 type statement =
   | LetStatement of Token.t * expression
+  | ReturnStatement of Token.t
 
 type node =
   | Statement of statement
@@ -40,23 +41,15 @@ let init_parser lexer =
 
 let rec token_of_node node =
   match node with
-  | Statement stmt ->
-    let token = 
+  | Statement stmt -> (      
       match stmt with
-      | LetStatement (_token, expr) -> 
-        let identifier =
-          match expr with
-          | Identifier ident ->  ident
-        in
-        identifier
-    in
-    token
-  | Expression expr ->
-    let token =
-      match expr with
-      | Identifier token -> token
-    in
-    token
+      | LetStatement (token, _expr) -> token
+      | ReturnStatement (token) -> token
+  )
+  | Expression expr -> (
+    match expr with
+    | Identifier token -> token
+  )
   | Program statements -> 
     if (List.length statements) > 0 then
       statements
@@ -121,9 +114,21 @@ let parse_let_statement parser =
   else
     (parser, None)
 
+let parse_return_statement parser =
+  let stmt = ReturnStatement parser.cur_token in
+  let parser = parser |> next_token in
+  let rec loop parser =
+    if parser |> is_current_token Token.Variants.semicolon  then
+      parser
+    else
+      loop (parser |> next_token) 
+  in
+  ((loop parser), Some stmt)
+
 let parse_statement parser =
   match parser.cur_token with
     | Token.Let -> parse_let_statement parser
+    | Token.Return -> parse_return_statement parser
     | _ -> (parser, None)
       
 let parse_program parser =
@@ -144,9 +149,9 @@ let parse_program parser =
 let test_let_statements () =
   let input = 
     "
-      let x = 5;
-      let y = 10;
-      let foobar = 838383;
+      return 5;
+      return 10;
+      return 993322;
     "
   in
 
@@ -162,14 +167,14 @@ let test_let_statements () =
     |> List.iter (fun err -> Printf.eprintf "Error: %s\n" err) 
   in
 
-  let () =
+  (* let () =
     node_list
     |> List.map get_node_token_literal
     |> List.iter (fun item ->
       match item with
       | Some str -> print_endline str
       | None -> print_endline "none")
-  in
+  in *)
   
   (* let expected_nodes_list =
     [
@@ -179,4 +184,4 @@ let test_let_statements () =
     ]
   in *)
 
-  true
+  (List.length node_list) = 3

@@ -84,6 +84,7 @@ let lookup_ident ident =
   match String.trim ident with
   | "let" -> Token.Let
   | "fn" -> Token.Function
+  | "return" -> Token.Return
   | _ -> Token.Ident ident
 
 let next_token lexer =
