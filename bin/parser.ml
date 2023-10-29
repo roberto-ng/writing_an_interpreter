@@ -8,7 +8,7 @@ type t = {
 }
 
 type expression =
-| Identifier of Token.t * (expression option)
+| Identifier of Token.t * (string option)
 
 type statement =
   | LetStatement of Token.t * expression
@@ -70,6 +70,10 @@ let rec string_of_node node =
       |> List.filter_map string_of_node    
       |> BatString.join "\n"
     )  
+  | Expression expr -> (
+    match expr with
+    | Identifier (_token, value) -> value
+  )
   | Statement stmt -> (
     match stmt with
     | LetStatement (token_literal, name_expr) ->
@@ -82,7 +86,7 @@ let rec string_of_node node =
       let* value = 
         match value_expr with
         | None -> Some ""
-        | Some expr -> string_of_node (Expression expr)
+        | Some _ -> value_expr
       in
 
       let result_str = 
