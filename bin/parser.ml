@@ -1,3 +1,5 @@
+let ( let* ) = Option.bind
+
 type t = {
   lexer: Lexer.t;
   cur_token: Token.t;
@@ -6,11 +8,12 @@ type t = {
 }
 
 type expression =
-  | Identifier of Token.t
+| Identifier of Token.t * (expression option)
 
 type statement =
   | LetStatement of Token.t * expression
-  | ReturnStatement of Token.t
+  | ReturnStatement of Token.t * (expression option)
+  | ExpressionStatement of Token.t * (expression option)
 
 type node =
   | Statement of statement
@@ -44,11 +47,12 @@ let rec token_of_node node =
   | Statement stmt -> (      
       match stmt with
       | LetStatement (token, _expr) -> token
-      | ReturnStatement (token) -> token
+      | ReturnStatement (token, _expr) -> token
+      | ExpressionStatement (token, _expr) -> token
   )
   | Expression expr -> (
     match expr with
-    | Identifier token -> token
+    | Identifier (token, _) -> token
   )
   | Program statements -> 
     if (List.length statements) > 0 then
@@ -57,6 +61,56 @@ let rec token_of_node node =
       |> token_of_node
     else
       Token.Eof
+
+let rec string_of_node node =
+  match node with
+  | Program node_list ->
+    Some (      
+      node_list
+      |> List.filter_map string_of_node    
+      |> BatString.join "\n"
+    )  
+  | Statement stmt -> (
+    match stmt with
+    | LetStatement (token_literal, name_expr) ->
+      let* (value_token, value_expr) = 
+        match name_expr with
+        | Identifier (value_token, value_expr) ->
+          Some (value_token, value_expr)
+        (* | _ -> None *)
+      in
+      let* value = 
+        match value_expr with
+        | None -> Some ""
+        | Some expr -> string_of_node (Expression expr)
+      in
+
+      let result_str = 
+        Printf.sprintf "%s %s = %s;"
+          (Token.get_literal_or_empty token_literal)
+          (Token.get_literal_or_empty value_token)
+          value
+      in
+      Some result_str
+    | ReturnStatement (token, expr) ->
+      let* return_value =
+        match expr with
+        | None -> Some ""
+        | Some expr -> string_of_node (Expression expr)
+      in
+
+      Some (
+        Printf.sprintf "%s %s;" 
+          (Token.string_of_token token)
+          return_value
+      )
+    | ExpressionStatement (_token, expr) -> (
+      match expr with
+      | None -> Some ""
+      | Some expr -> string_of_node (Expression expr)
+    ) 
+  )
+  | _ -> None
 
 let peek_error token_name parser =
   let error_msg = 
@@ -96,7 +150,7 @@ let parse_let_statement parser =
   in
 
   if is_peek_token_ident then
-    let stmt = LetStatement (first_token, Identifier (parser.cur_token)) in
+    let stmt = LetStatement (first_token, Identifier (parser.cur_token, None)) in
   
     let (parser, is_peek_token_assign) = 
       parser |> expect_peek Token.Variants.assign
@@ -115,7 +169,7 @@ let parse_let_statement parser =
     (parser, None)
 
 let parse_return_statement parser =
-  let stmt = ReturnStatement parser.cur_token in
+  let stmt = ReturnStatement (parser.cur_token, None) in
   let parser = parser |> next_token in
   let rec loop parser =
     if parser |> is_current_token Token.Variants.semicolon  then

@@ -95,6 +95,11 @@ let get_literal token =
   | Int value -> Some value
   | _ -> None
 
+let get_literal_or_empty token = 
+  match (get_literal token) with
+  | None -> ""
+  | Some literal -> literal
+  
  (* let mustbe tag x =
   (* tag.Variants. *)
   tag.Variants.rank = Variants.to_rank x *)
